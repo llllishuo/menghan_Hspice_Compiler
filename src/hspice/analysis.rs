@@ -1,5 +1,3 @@
-use std::path::Path;
-
 /// Program execution trace macro - prefix `<spice>`
 macro_rules! trace {
     ($fmt:expr $(, $($arg:tt)*)?) => {
@@ -96,7 +94,6 @@ impl Configuration {
     }
 
     pub fn option_analysis(&mut self, bit: Vec<&str>) {
-        //println!("{:#?}", bit);
         trace!("*INFO* Parsing control '{}'", bit[0]);
         match bit[1] {
             "post" => {

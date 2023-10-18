@@ -1,16 +1,11 @@
-use crate::hspice::analysis::Configuration;
-use crate::hspice::circuit::Circuit;
-use crate::hspice::device::*;
-use std::env;
-use std::fs::File;
-use std::io::{BufRead, BufReader, Lines};
-use std::path::Path;
+use crate::hspice::{analysis::Configuration, circuit::Circuit, device::from_mos};
 
-macro_rules! next_to_string {
-    ($start:expr) => {
-        $start.next().expect("value not exist!").to_string()
-    };
-}
+use std::{
+    fs::File,
+    io::{BufRead, BufReader, Lines},
+    path::Path,
+};
+
 pub struct Reader {
     // Circuit information
     /// `ckts[0]` is the toplevel
@@ -49,26 +44,26 @@ impl Reader {
 
         lines_iter
     }
-    pub fn Analysis_iter(&mut self, data_iter: Lines<BufReader<File>>) {
+    pub fn analysis_iter(&mut self, data_iter: Lines<BufReader<File>>) {
         // 处理读取到的每一行数据
         for data_line in data_iter {
-            //println!("{:#?}", data_line);
+            // println!("{:#?}", data_line);
 
             let line = data_line.unwrap();
             let item: Vec<&str> = line.split_whitespace().collect();
 
-            /// 如果该行为空和或者是注释就跳过
+            // 如果该行为空和或者是注释就跳过
             if item.is_empty() {
                 continue;
             }
-            if item[0] == "*" || item[0].starts_with("*") {
+            if item[0] == "*" || item[0].starts_with('*') {
                 continue;
             }
 
-            /// 消除语句的注释以及结束标识符
+            // 消除语句的注释以及结束标识符
             let mut bits: Vec<&str> = vec![];
             for bit in item {
-                if bit == "$" || bit.starts_with("$") {
+                if bit == "$" || bit.starts_with('$') {
                     break;
                 }
                 if bit == ";" {
@@ -77,7 +72,8 @@ impl Reader {
 
                 bits.push(bit);
             }
-            //println!("{:#?}", bits);
+
+            // println!("{:#?}", bits);
 
             // 对数据进行解析
             match bits[0] {
@@ -90,17 +86,15 @@ impl Reader {
                 // 器件的解析
                 _ => {
                     // 将每行第一项进行拆分如： m0 拆为 m，0
-                    let mut start = bits[0].chars();
-                    //println!("char: {:#?}", start);
-                    /// 根据第一个字母判断添加什么器件
-                    match start.next() {
+                    // 根据第一个字母判断添加什么器件
+                    match bits[0].chars().next() {
                         Some('m') | Some('M') => {
-                            let device = Device::<MOS>::add(bits);
-                            self.ckts.set_device(device);
-                            self.ckts.trace_device();
+                            let device = from_mos(bits);
+                            self.ckts.add_device(device);
+                            println!("{:?}", self.ckts);
                         }
-                        _ => {
-                            panic!("This is an illegal device! -> {:?}", start);
+                        x => {
+                            panic!("This is an illegal device! -> {:?} {:?}", x, bits[0]);
                         }
                     }
                 }
