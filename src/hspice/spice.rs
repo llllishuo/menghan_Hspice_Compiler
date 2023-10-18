@@ -97,6 +97,7 @@ impl Reader {
                         Some('m') | Some('M') => {
                             let device = Device::<MOS>::add(bits);
                             self.ckts.set_device(device);
+                            self.ckts.trace_device();
                         }
                         _ => {
                             panic!("This is an illegal device! -> {:?}", start);

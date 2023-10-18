@@ -168,14 +168,24 @@ impl Device<MOS> {
         let model = bits[5].to_string();
         let long = bits[6].to_string();
         let wide = bits[7].to_string();
-        println!(
+        /*println!(
             "<MOS>: {{name: {}, node: {:?}, model: {}, long: {}, wide: {}}}",
             name, node, model, long, wide
-        );
+        );*/
         let m = MOS::from(name, model, long, wide);
         Device {
             dev_type: Box::new(m),
             node,
         }
+    }
+    pub fn trace(&mut self) {
+        println!(
+            "<MOS>: {{name: {}, node: {:?}, model: {}, long: {}, wide: {}}}",
+            self.dev_type.name,
+            self.node,
+            self.dev_type.model,
+            self.dev_type.long,
+            self.dev_type.wide
+        );
     }
 }
