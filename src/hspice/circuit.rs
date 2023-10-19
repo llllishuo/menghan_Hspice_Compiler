@@ -27,9 +27,9 @@ impl Circuit {
             self.devices.len()
         );
     }
+    // 打印每个添加的器件
     pub fn trace_device(&mut self) {
         for item in &mut self.devices {
-            println!("{:#?}", item);
             if let Some(i) = item.downcast_mut::<Device<MOS>>() {
                 i.trace();
             }

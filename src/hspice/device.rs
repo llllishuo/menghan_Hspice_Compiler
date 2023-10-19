@@ -49,6 +49,25 @@ impl Device<Source> {
             node: Vec::new(),
         }
     }
+    pub fn add(bits: Vec<&str>) -> Device<MOS> {
+        /*
+        if bits.len() < 5 {
+            panic!("Source statement syntax error, please modify!!!!");
+        }
+        let mut name = bits[0].to_string();
+        let mut pe = bit[1].to_string();
+        let mut ne = bit[2].to_string();
+        let DC = bits[3].to_string();
+        /*println!(
+            "<MOS>: {{name: {}, node: {:?}, model: {}, long: {}, wide: {}}}",
+            name, node, model, long, wide
+        );*/
+        let m = MOS::from(name, model, long, wide);
+        Device {
+            dev_type: Box::new(m),
+            node,
+        }
+        */
 }
 // 电阻
 pub struct R {

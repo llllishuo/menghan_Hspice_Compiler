@@ -94,11 +94,14 @@ impl Reader {
                     //println!("char: {:#?}", start);
                     /// 根据第一个字母判断添加什么器件
                     match start.next() {
+                        // 添加MOS
                         Some('m') | Some('M') => {
                             let device = Device::<MOS>::add(bits);
                             self.ckts.set_device(device);
                             self.ckts.trace_device();
                         }
+                        // 添加电源
+                        Some('v') | Some('V') => {}
                         _ => {
                             panic!("This is an illegal device! -> {:?}", start);
                         }
