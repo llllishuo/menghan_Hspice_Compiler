@@ -7,7 +7,180 @@ macro_rules! trace {
 }
 
 // 基本控制选项
+#[derive(Debug)]
 pub struct Configuration {
+    option: Option,
+    dc: DC,
+}
+impl Configuration {
+    pub fn new() -> Self {
+        Self {
+            option: Option::new(),
+            dc: DC::new(),
+        }
+    }
+    // option 写入
+    pub fn option_analysis(&mut self, bit: Vec<&str>) {
+        trace!("*INFO* Parsing control '{}'", bit[0]);
+        // 根据参数值赋值
+        match bit[1] {
+            "post" => {
+                self.option.post = NUM::get(bit[3]);
+            }
+            "search" => self.option.search = bit[1].to_string(),
+
+            _ => {
+                panic!("This is an unspecified parameter! -> {}", bit[1]);
+            }
+        }
+        println!("{:?}", self.option);
+    }
+    // dc 写入
+    pub fn dc_analysis(&mut self, bit: Vec<&str>) {
+        trace!("*INFO* Parsing control '{}'", bit[0]);
+        let mut vars: Vec<Var> = Vec::new();
+        let var_name = bit[1];
+        let mut scan = Scan_type::None;
+        // 判断开头的 poi
+        let mut poi_vec: Vec<u32> = Vec::new();
+        if bit[2] == "poi" {
+            let num = bit[3].parse::<u32>().unwrap();
+            for i in 0..num {
+                let value = bit[4 + i as usize].parse::<u32>().unwrap();
+                //println!("poi_value: {}", value);
+                poi_vec.push(value);
+            }
+            scan = Scan_type::POI(poi_vec);
+        }
+
+        let start = bit[2];
+        let stop = bit[3];
+        let step = bit[4];
+        let mut sweep: Vec<String> = Vec::new();
+        // 判断参数输入完是否有其它关联变量
+        if bit[5] == "sweep" {
+            sweep.push(bit[6].to_string());
+        }
+        // 判断末尾的 poi
+        if bit[7] == "poi" {
+            poi_vec = Vec::new();
+            let num = bit[8].parse::<u32>().unwrap();
+            for i in 0..num {
+                let value = bit[9 + i as usize].parse::<u32>().unwrap();
+                //println!("poi_value: {}", value);
+                poi_vec.push(value);
+            }
+            scan = Scan_type::POI(poi_vec);
+        }
+
+        vars.push(Var {
+            var: var_name.to_string(),
+            scan: scan,
+            start: start.to_string(),
+            stop: stop.to_string(),
+            step: step.to_string(),
+            sweep: sweep,
+        });
+        self.dc = DC::from(vars);
+        println!("{:?}", self.dc);
+    }
+}
+/*
+ * ype 设定扫描类型，可以是以下四种：
+ DEC — decade variation
+ OCT — octave variation
+ LIN — linear variation
+ POI — list of points
+*/
+#[derive(Debug)]
+pub enum Scan_type {
+    DEC,
+    OCT,
+    LIN(Vec<u32>),
+    POI(Vec<u32>),
+    None,
+}
+#[derive(Debug)]
+struct DC {
+    vars: Vec<Var>,
+}
+impl DC {
+    pub fn new() -> Self {
+        Self { vars: Vec::new() }
+    }
+    pub fn from(Vars: Vec<Var>) -> Self {
+        Self { vars: Vars }
+    }
+}
+#[derive(Debug)]
+struct Var {
+    var: String,
+    scan: Scan_type,
+    start: String,
+    stop: String,
+    // 步长
+    step: String,
+    sweep: Vec<String>,
+}
+impl Var {
+    pub fn new() -> Self {
+        Self {
+            var: String::new(),
+            scan: Scan_type::None,
+            start: String::new(),
+            stop: String::new(),
+            step: String::new(),
+            sweep: Vec::new(),
+        }
+    }
+    pub fn from(
+        var: String,
+        scan: Scan_type,
+        start: String,
+        stop: String,
+        step: String,
+        sweep: Vec<String>,
+    ) -> Self {
+        Self {
+            var: var,
+            scan,
+            start,
+            stop,
+            step,
+            sweep,
+        }
+    }
+}
+#[derive(Debug)]
+pub enum PARHIER {
+    LOCAL,
+    GLOBAL,
+}
+
+#[derive(Debug)]
+pub enum NUM {
+    ZERO,
+    ONE,
+    TWO,
+    THREE,
+}
+
+impl NUM {
+    pub fn get(num: &str) -> NUM {
+        match num {
+            "0" => NUM::ZERO,
+            "1" => NUM::ONE,
+            "2" => NUM::TWO,
+            "3" => NUM::THREE,
+            _ => {
+                panic!("This is an unspecified number! -> num: {}", num);
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
+struct Option {
     // 0 取消报告 1 允许报告 2 允许矩阵统计报告
     ACCT: NUM,
     // 简化仿真报告
@@ -50,33 +223,7 @@ pub struct Configuration {
     parhier: PARHIER,
 }
 
-pub enum PARHIER {
-    LOCAL,
-    GLOBAL,
-}
-
-pub enum NUM {
-    ZERO,
-    ONE,
-    TWO,
-    THREE,
-}
-
-impl NUM {
-    pub fn get(num: &str) -> NUM {
-        match num {
-            "0" => NUM::ZERO,
-            "1" => NUM::ONE,
-            "2" => NUM::TWO,
-            "3" => NUM::THREE,
-            _ => {
-                panic!("This is an unspecified number! -> num: {}", num);
-            }
-        }
-    }
-}
-
-impl Configuration {
+impl Option {
     pub fn new() -> Self {
         Self {
             ACCT: NUM::ONE,
@@ -90,20 +237,6 @@ impl Configuration {
             post: NUM::ONE,
             probe: false,
             parhier: PARHIER::LOCAL,
-        }
-    }
-
-    pub fn option_analysis(&mut self, bit: Vec<&str>) {
-        trace!("*INFO* Parsing control '{}'", bit[0]);
-        match bit[1] {
-            "post" => {
-                self.post = NUM::get(bit[3]);
-            }
-            "search" => self.search = bit[1].to_string(),
-
-            _ => {
-                panic!("This is an unspecified parameter! -> {}", bit[1]);
-            }
         }
     }
 }

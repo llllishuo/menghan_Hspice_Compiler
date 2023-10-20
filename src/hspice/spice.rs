@@ -85,6 +85,9 @@ impl Reader {
                 ".lib" => {
                     println!("This is a library file path: {}", bits[1]);
                 }
+                ".dc" => {
+                    self.cfg.dc_analysis(bits);
+                }
                 // 器件的解析
                 _ => {
                     // 将每行第一项进行拆分如： m0 拆为 m，0
@@ -98,7 +101,9 @@ impl Reader {
                         Some('v') | Some('V') => {
                             let device = from_source(bits);
                             self.ckts.add_device(device);
+                            //println!("{:?}", self.ckts);
                         }
+
                         _ => {
                             panic!("This is an illegal device! -> {:?}", bits[0].chars());
                         }
@@ -109,6 +114,7 @@ impl Reader {
                 }
             }
         }
-        self.ckts.trace();
+        println!("{:?}", self.ckts);
+        println!("{:?}", self.cfg);
     }
 }
