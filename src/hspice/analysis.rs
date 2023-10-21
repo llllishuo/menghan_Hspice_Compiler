@@ -11,12 +11,16 @@ macro_rules! trace {
 pub struct Configuration {
     option: Option,
     dc: DC,
+    lib: Lib,
+    print: Vec<Print>,
 }
 impl Configuration {
     pub fn new() -> Self {
         Self {
             option: Option::new(),
             dc: DC::new(),
+            lib: Lib::new(),
+            print: Vec::new(),
         }
     }
     // option 写入
@@ -83,6 +87,50 @@ impl Configuration {
         });
         self.dc = DC::from(vars);
         println!("{:?}", self.dc);
+    }
+    pub fn lib_analysis(&mut self, bit: Vec<&str>) {
+        self.lib.src.push(bit[1].to_string());
+    }
+    pub fn print_analysis(&mut self, bit: Vec<&str>) {
+        let mut prints = Vec::new();
+        for b in bit {
+            match b {
+                ".print" => continue,
+                _ => {
+                    // 如果包含'(' ')' 代表着是类似于 i0(mo,m1)
+                    // 反之直接push 进 prints
+                    if b.contains("(") || b.contains(")") {
+                        // 将i0(m0,....) 拆分单字符进行判断 属于一个单词就push 进新str 遇到'(' || ',' 将str push Vec<String> 代表一个单词组装完成将其压入Vec 并且初始化重新push单词
+
+                        let mut chars = b.chars();
+                        let mut all: Vec<String> = Vec::new();
+
+                        let mut iter = String::new();
+                        while let Some(c) = chars.next() {
+                            if c == ')' {
+                                all.push(iter);
+                                break;
+                            }
+                            if c == '(' || c == ',' {
+                                all.push(iter);
+                                iter = String::new();
+                                continue;
+                            }
+
+                            iter.push(c);
+                        }
+                        //println!("{:#?}", all);
+                        let way = all[0].to_string();
+                        let _ = all.swap_remove(0);
+                        prints.push(Print::from(way, all));
+                    } else {
+                        prints.push(Print::from(b.to_string(), Vec::new()));
+                    }
+                }
+            }
+        }
+        self.print = prints;
+        println!("<update>print: {:?}", self.print);
     }
 }
 /*
@@ -237,6 +285,34 @@ impl Option {
             post: NUM::ONE,
             probe: false,
             parhier: PARHIER::LOCAL,
+        }
+    }
+}
+#[derive(Debug)]
+struct Lib {
+    src: Vec<String>,
+}
+impl Lib {
+    pub fn new() -> Self {
+        Self { src: Vec::new() }
+    }
+}
+#[derive(Debug)]
+struct Print {
+    way: String,
+    content: Vec<String>,
+}
+impl Print {
+    pub fn new() -> Self {
+        Self {
+            way: String::new(),
+            content: Vec::new(),
+        }
+    }
+    pub fn from(way: String, content: Vec<String>) -> Self {
+        Self {
+            way: way,
+            content: content,
         }
     }
 }

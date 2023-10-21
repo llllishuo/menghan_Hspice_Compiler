@@ -79,14 +79,20 @@ impl Reader {
 
             // 对数据进行解析
             match bits[0] {
+                ".end" => {
+                    println!("<end> Analysis over !!");
+                }
                 ".option" => {
                     self.cfg.option_analysis(bits);
                 }
                 ".lib" => {
-                    println!("This is a library file path: {}", bits[1]);
+                    self.cfg.lib_analysis(bits);
                 }
                 ".dc" => {
                     self.cfg.dc_analysis(bits);
+                }
+                ".print" => {
+                    self.cfg.print_analysis(bits);
                 }
                 // 器件的解析
                 _ => {
@@ -114,7 +120,7 @@ impl Reader {
                 }
             }
         }
-        println!("{:?}", self.ckts);
-        println!("{:?}", self.cfg);
+        println!("ckts: \n{:?}", self.ckts);
+        println!("cfg: \n{:?}", self.cfg);
     }
 }
