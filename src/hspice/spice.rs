@@ -51,6 +51,8 @@ impl Reader {
         lines_iter
     }
     pub fn analysis_iter(&mut self, data_iter: Lines<BufReader<File>>) {
+        let mut is_sub = false;
+        let mut sub_circuit: sub_circuit = sub_circuit::new();
         // 处理读取到的每一行数据
         for data_line in data_iter {
             // println!("{:#?}", data_line);
@@ -81,8 +83,6 @@ impl Reader {
 
             // println!("{:#?}", bits);
 
-            let mut is_sub = false;
-            let mut sub_circuit: sub_circuit = sub_circuit::new();
             // 对数据进行解析
             match bits[0] {
                 ".end" => {
@@ -106,20 +106,18 @@ impl Reader {
                 ".subckt" => {
                     println!("sub_circuit: <start> ");
                     is_sub = true;
-                    println!("{}", is_sub);
-                    sub_circuit = sub_circuit::new();
                     sub_circuit.add_name_And_Nodes(bits);
                 }
                 ".ends" => {
                     is_sub = false;
                     self.ckts.add_sub_circuits(sub_circuit);
+                    sub_circuit = sub_circuit::new();
                     println!("sub_circuit: <end>");
                 }
                 // 器件的解析
                 _ => {
                     let device = Device::get(bits);
                     if is_sub {
-                        println!("111111111111111111");
                         sub_circuit.add_device(device);
                     } else {
                         self.ckts.add_device(device);
