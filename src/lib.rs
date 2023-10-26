@@ -6,4 +6,5 @@ pub use std::{
     path::Path,
 };
 
+pub mod common;
 pub mod hspice;

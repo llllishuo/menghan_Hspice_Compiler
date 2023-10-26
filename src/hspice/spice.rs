@@ -1,4 +1,8 @@
-use crate::hspice::{analysis::Configuration, circuit::Circuit, device::from_mos};
+use crate::hspice::{
+    analysis::Configuration,
+    circuit::{sub_circuit, Circuit},
+    device::*,
+};
 
 use std::{
     fs::File,
@@ -77,6 +81,8 @@ impl Reader {
 
             // println!("{:#?}", bits);
 
+            let mut is_sub = false;
+            let mut sub_circuit: sub_circuit = sub_circuit::new();
             // 对数据进行解析
             match bits[0] {
                 ".end" => {
@@ -94,28 +100,29 @@ impl Reader {
                 ".print" => {
                     self.cfg.print_analysis(bits);
                 }
+                ".global" => {
+                    self.cfg.global_analysis(bits);
+                }
+                ".subckt" => {
+                    println!("sub_circuit: <start> ");
+                    is_sub = true;
+                    println!("{}", is_sub);
+                    sub_circuit = sub_circuit::new();
+                    sub_circuit.add_name_And_Nodes(bits);
+                }
+                ".ends" => {
+                    is_sub = false;
+                    self.ckts.add_sub_circuits(sub_circuit);
+                    println!("sub_circuit: <end>");
+                }
                 // 器件的解析
                 _ => {
-                    // 将每行第一项进行拆分如： m0 拆为 m，0
-                    // 根据第一个字母判断添加什么器件
-                    match bits[0].chars().next() {
-                        Some('m') | Some('M') => {
-                            let device = from_mos(bits);
-                            self.ckts.add_device(device);
-                        }
-                        // 添加电源
-                        Some('v') | Some('V') => {
-                            let device = from_source(bits);
-                            self.ckts.add_device(device);
-                            //println!("{:?}", self.ckts);
-                        }
-
-                        _ => {
-                            panic!("This is an illegal device! -> {:?}", bits[0].chars());
-                        }
-                        x => {
-                            panic!("This is an illegal device! -> {:?} {:?}", x, bits[0]);
-                        }
+                    let device = Device::get(bits);
+                    if is_sub {
+                        println!("111111111111111111");
+                        sub_circuit.add_device(device);
+                    } else {
+                        self.ckts.add_device(device);
                     }
                 }
             }

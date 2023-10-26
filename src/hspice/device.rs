@@ -1,3 +1,5 @@
+use crate::common::split::split_equal_sign;
+
 #[derive(Debug)]
 pub enum DeviceType {
     Source(Source),
@@ -8,6 +10,7 @@ pub enum DeviceType {
     D(D),
     Q(Q),
     MOS(MOS),
+    Sub(Sub),
 }
 
 #[derive(Debug)]
@@ -16,6 +19,25 @@ pub struct Device {
     pub device_type: DeviceType,
     // 节点组
     pub node: Vec<String>,
+}
+impl Device {
+    // 获取器件
+    pub fn get(bits: Vec<&str>) -> Device {
+        // 将每行第一项进行拆分如： m0 拆为 m，0
+        // 根据第一个字母判断添加什么器件
+        match bits[0].chars().next() {
+            Some('m') | Some('M') => from_mos(bits),
+            // 添加电源
+            Some('v') | Some('V') => from_source(bits),
+            Some('c') | Some('C') => from_c(bits),
+            _ => {
+                panic!("This is an illegal device! -> {:?}", bits[0].chars());
+            }
+            x => {
+                panic!("This is an illegal device! -> {:?} {:?}", x, bits[0]);
+            }
+        }
+    }
 }
 // 源 既 电压源 与 电流源
 #[derive(Debug)]
@@ -49,17 +71,7 @@ pub fn from_source(bits: Vec<&str>) -> Device {
     let mut name = bits[0].to_string();
     let mut pe = bits[1].to_string();
     let mut ne = bits[2].to_string();
-    let Some(DC) = (|| {
-        if bits[3].contains("=") {
-            let mut b = bits[3].split("=");
-            b.next();
-            b.next()
-        } else {
-            Some(bits[3])
-        }
-    })() else {
-        todo!()
-    };
+    let DC = split_equal_sign(bits[3]);
     /*println!(
         "<MOS>: {{name: {}, node: {:?}, model: {}, long: {}, wide: {}}}",
         name, node, model, long, wide
@@ -69,7 +81,7 @@ pub fn from_source(bits: Vec<&str>) -> Device {
             name: name,
             pe: pe,
             ne: ne,
-            DC: DC.to_string(),
+            DC: DC,
             tranfun: "".to_string(),
         }),
         node: vec![bits[1].to_string(), bits[2].to_string()],
@@ -110,7 +122,35 @@ pub struct C {
     // 多项式函数
     func: String,
 }
-
+impl C {
+    pub fn new() -> Self {
+        Self {
+            name: String::new(),
+            value: String::new(),
+            M: 0,
+            CTYPE: String::new(),
+            IC: String::new(),
+            func: String::new(),
+        }
+    }
+}
+pub fn from_c(bits: Vec<&str>) -> Device {
+    let mut nodes: Vec<String> = Vec::new();
+    let mut value: String = String::new();
+    nodes = vec![bits[1].to_string(), bits[2].to_string()];
+    value = split_equal_sign(bits[3]);
+    Device {
+        device_type: DeviceType::C(C {
+            name: String::new(),
+            value: value,
+            M: 0,
+            CTYPE: String::new(),
+            IC: String::new(),
+            func: String::new(),
+        }),
+        node: nodes,
+    }
+}
 // 电感
 #[derive(Debug)]
 pub struct L {
@@ -179,8 +219,8 @@ pub fn from_mos(bits: Vec<&str>) -> Device {
     ];
 
     let model = bits[5].to_string();
-    let long = bits[6].to_string();
-    let wide = bits[7].to_string();
+    let wide = split_equal_sign(bits[6]);
+    let long = split_equal_sign(bits[7]);
 
     Device {
         device_type: DeviceType::MOS(MOS {
@@ -190,5 +230,25 @@ pub fn from_mos(bits: Vec<&str>) -> Device {
             wide,
         }),
         node,
+    }
+}
+
+#[derive(Debug)]
+pub struct Sub {
+    name: String,
+}
+impl Sub {
+    pub fn new() -> Self {
+        Self {
+            name: String::new(),
+        }
+    }
+}
+pub fn from_Sub(bits: Vec<&str>) -> Device {
+    let mut nodes: Vec<String> = Vec::new();
+    let mut name: String = String::new();
+    Device {
+        device_type: DeviceType::Sub(Sub { name: name }),
+        node: nodes,
     }
 }

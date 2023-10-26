@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 /// Program execution trace macro - prefix `<spice>`
 macro_rules! trace {
     ($fmt:expr $(, $($arg:tt)*)?) => {
@@ -13,6 +15,7 @@ pub struct Configuration {
     dc: DC,
     lib: Lib,
     print: Vec<Print>,
+    global: Global,
 }
 impl Configuration {
     pub fn new() -> Self {
@@ -21,6 +24,7 @@ impl Configuration {
             dc: DC::new(),
             lib: Lib::new(),
             print: Vec::new(),
+            global: Global::new(),
         }
     }
     // option 写入
@@ -131,6 +135,13 @@ impl Configuration {
         }
         self.print = prints;
         println!("<update>print: {:?}", self.print);
+    }
+    pub fn global_analysis(&mut self, bit: Vec<&str>) {
+        let mut nodes: Vec<String> = Vec::new();
+        for i in 1..bit.len() {
+            nodes.push(bit[i].to_string());
+        }
+        self.global.add_nodes(nodes);
     }
 }
 /*
@@ -314,5 +325,17 @@ impl Print {
             way: way,
             content: content,
         }
+    }
+}
+#[derive(Debug)]
+pub struct Global {
+    nodes: Vec<String>,
+}
+impl Global {
+    pub fn new() -> Self {
+        Self { nodes: Vec::new() }
+    }
+    pub fn add_nodes(&mut self, nodes: Vec<String>) {
+        self.nodes = nodes;
     }
 }
