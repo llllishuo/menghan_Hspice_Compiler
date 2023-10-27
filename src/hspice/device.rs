@@ -1,5 +1,5 @@
 use crate::common::split::split_equal_sign;
-
+use crate::hspice::source::*;
 #[derive(Debug)]
 pub enum DeviceType {
     Source(Source),
@@ -26,10 +26,10 @@ impl Device {
         // 将每行第一项进行拆分如： m0 拆为 m，0
         // 根据第一个字母判断添加什么器件
         match bits[0].chars().next() {
-            Some('m') | Some('M') => from_mos(bits),
+            Some('m') | Some('M') => MOS::from(bits),
             // 添加电源
-            Some('v') | Some('V') => from_source(bits),
-            Some('c') | Some('C') => from_c(bits),
+            Some('v') | Some('V') => Source::from(bits),
+            Some('c') | Some('C') => C::from(bits),
             _ => {
                 panic!("This is an illegal device! -> {:?}", bits[0].chars());
             }
@@ -39,54 +39,7 @@ impl Device {
         }
     }
 }
-// 源 既 电压源 与 电流源
-#[derive(Debug)]
-pub struct Source {
-    name: String,
-    // 正极
-    pe: String,
-    // 负极
-    ne: String,
-    // 直流电压值
-    DC: String,
-    // 瞬态电压源
-    tranfun: String,
-}
-impl Source {
-    pub fn new(name: String, pe: String, ne: String, DC: String, tranfun: String) -> Self {
-        Self {
-            name: name,
-            pe,
-            ne,
-            DC,
-            tranfun,
-        }
-    }
-}
 
-pub fn from_source(bits: Vec<&str>) -> Device {
-    if bits.len() < 5 {
-        panic!("Source statement syntax error, please modify!!!!");
-    }
-    let mut name = bits[0].to_string();
-    let mut pe = bits[1].to_string();
-    let mut ne = bits[2].to_string();
-    let DC = split_equal_sign(bits[3]);
-    /*println!(
-        "<MOS>: {{name: {}, node: {:?}, model: {}, long: {}, wide: {}}}",
-        name, node, model, long, wide
-    );*/
-    Device {
-        device_type: DeviceType::Source(Source {
-            name: name,
-            pe: pe,
-            ne: ne,
-            DC: DC,
-            tranfun: "".to_string(),
-        }),
-        node: vec![bits[1].to_string(), bits[2].to_string()],
-    }
-}
 // 电阻
 #[derive(Debug)]
 pub struct R {
@@ -133,22 +86,22 @@ impl C {
             func: String::new(),
         }
     }
-}
-pub fn from_c(bits: Vec<&str>) -> Device {
-    let mut nodes: Vec<String> = Vec::new();
-    let mut value: String = String::new();
-    nodes = vec![bits[1].to_string(), bits[2].to_string()];
-    value = split_equal_sign(bits[3]);
-    Device {
-        device_type: DeviceType::C(C {
-            name: String::new(),
-            value: value,
-            M: 0,
-            CTYPE: String::new(),
-            IC: String::new(),
-            func: String::new(),
-        }),
-        node: nodes,
+    pub fn from(bits: Vec<&str>) -> Device {
+        let mut nodes: Vec<String> = Vec::new();
+        let mut value: String = String::new();
+        nodes = vec![bits[1].to_string(), bits[2].to_string()];
+        value = split_equal_sign(bits[3]);
+        Device {
+            device_type: DeviceType::C(C {
+                name: String::new(),
+                value: value,
+                M: 0,
+                CTYPE: String::new(),
+                IC: String::new(),
+                func: String::new(),
+            }),
+            node: nodes,
+        }
     }
 }
 // 电感
@@ -202,34 +155,33 @@ impl MOS {
             wide,
         }
     }
-}
+    pub fn from(bits: Vec<&str>) -> Device {
+        assert!(
+            bits.len() >= 8,
+            "MOS statement syntax error, please modify!!!!"
+        );
 
-pub fn from_mos(bits: Vec<&str>) -> Device {
-    assert!(
-        bits.len() >= 8,
-        "MOS statement syntax error, please modify!!!!"
-    );
+        let name = bits[0].to_string();
+        let node = vec![
+            bits[1].to_string(),
+            bits[2].to_string(),
+            bits[3].to_string(),
+            bits[4].to_string(),
+        ];
 
-    let name = bits[0].to_string();
-    let node = vec![
-        bits[1].to_string(),
-        bits[2].to_string(),
-        bits[3].to_string(),
-        bits[4].to_string(),
-    ];
+        let model = bits[5].to_string();
+        let wide = split_equal_sign(bits[6]);
+        let long = split_equal_sign(bits[7]);
 
-    let model = bits[5].to_string();
-    let wide = split_equal_sign(bits[6]);
-    let long = split_equal_sign(bits[7]);
-
-    Device {
-        device_type: DeviceType::MOS(MOS {
-            name,
-            model,
-            long,
-            wide,
-        }),
-        node,
+        Device {
+            device_type: DeviceType::MOS(MOS {
+                name,
+                model,
+                long,
+                wide,
+            }),
+            node,
+        }
     }
 }
 
@@ -243,12 +195,12 @@ impl Sub {
             name: String::new(),
         }
     }
-}
-pub fn from_Sub(bits: Vec<&str>) -> Device {
-    let mut nodes: Vec<String> = Vec::new();
-    let mut name: String = String::new();
-    Device {
-        device_type: DeviceType::Sub(Sub { name: name }),
-        node: nodes,
+    pub fn from(bits: Vec<&str>) -> Device {
+        let mut nodes: Vec<String> = Vec::new();
+        let mut name: String = String::new();
+        Device {
+            device_type: DeviceType::Sub(Sub { name: name }),
+            node: nodes,
+        }
     }
 }

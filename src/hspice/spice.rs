@@ -2,6 +2,7 @@ use crate::hspice::{
     analysis::Configuration,
     circuit::{sub_circuit, Circuit},
     device::*,
+    source::*,
 };
 
 use std::{
@@ -9,8 +10,6 @@ use std::{
     io::{BufRead, BufReader, Lines},
     path::Path,
 };
-
-use super::device::from_source;
 
 pub struct Reader {
     // Circuit information
