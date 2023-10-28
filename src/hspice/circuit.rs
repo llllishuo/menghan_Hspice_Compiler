@@ -28,6 +28,28 @@ impl Circuit {
     pub fn add_sub_circuits(&mut self, sub: sub_circuit) {
         self.sub_circuits.push(sub);
     }
+    pub fn retrieve_sub_circuits(&mut self, name: String) -> Vec<Device> {
+        let sub_name = String::new();
+        let sub_nodes: Vec<String> = Vec::new();
+
+        let sub_devices: Vec<Device> = Vec::new();
+
+        let mut sub_circuits = self.sub_circuits.iter_mut();
+        while let Some(sub_iter) = sub_circuits.next() {
+            if sub_iter.name != name {
+                continue;
+            }
+            /*println!(
+                "name: {}, nodes: {:?}, devices: {:?}",
+                sub_iter.name, sub_iter.nodes, sub_iter.devices,
+            );*/
+            let mut sub_devices_iter = sub_iter.devices;
+            for sub_device in sub_devices_iter {
+                self.devices.push(sub_device);
+            }
+        }
+        sub_devices
+    }
 }
 #[derive(Debug)]
 pub struct sub_circuit {

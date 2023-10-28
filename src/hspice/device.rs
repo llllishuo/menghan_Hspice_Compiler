@@ -30,6 +30,7 @@ impl Device {
             // 添加电源
             Some('v') | Some('V') => Source::from(bits),
             Some('c') | Some('C') => C::from(bits),
+            Some('x') | Some('X') => Sub::from(bits),
             _ => {
                 panic!("This is an illegal device! -> {:?}", bits[0].chars());
             }
@@ -187,7 +188,7 @@ impl MOS {
 
 #[derive(Debug)]
 pub struct Sub {
-    name: String,
+    pub name: String,
 }
 impl Sub {
     pub fn new() -> Self {
@@ -198,6 +199,11 @@ impl Sub {
     pub fn from(bits: Vec<&str>) -> Device {
         let mut nodes: Vec<String> = Vec::new();
         let mut name: String = String::new();
+        let end = bits.len() - 1 as usize;
+        name = bits[end].to_string();
+        for i in 1..end {
+            nodes.push(bits[i].to_string());
+        }
         Device {
             device_type: DeviceType::Sub(Sub { name: name }),
             node: nodes,

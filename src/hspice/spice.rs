@@ -116,10 +116,23 @@ impl Reader {
                 // 器件的解析
                 _ => {
                     let device = Device::get(bits);
-                    if is_sub {
-                        sub_circuit.add_device(device);
-                    } else {
-                        self.ckts.add_device(device);
+                    match device.device_type {
+                        DeviceType::Sub(i) => {
+                            let name = i.name;
+
+                            let mut devices = self.ckts.retrieve_sub_circuits(name);
+
+                            for iter in devices {
+                                self.ckts.add_device(iter);
+                            }
+                        }
+                        _ => {
+                            if is_sub {
+                                sub_circuit.add_device(device);
+                            } else {
+                                self.ckts.add_device(device);
+                            }
+                        }
                     }
                 }
             }
