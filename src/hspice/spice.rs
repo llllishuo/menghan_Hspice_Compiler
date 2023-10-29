@@ -113,6 +113,9 @@ impl Reader {
                     sub_circuit = sub_circuit::new();
                     println!("sub_circuit: <end>");
                 }
+                ".tran" => {
+                    self.cfg.tran_analysis(bits);
+                }
                 // 器件的解析
                 _ => {
                     let device = Device::get(bits);

@@ -16,6 +16,7 @@ pub struct Configuration {
     lib: Lib,
     print: Vec<Print>,
     global: Global,
+    tran: Tran,
 }
 impl Configuration {
     pub fn new() -> Self {
@@ -25,6 +26,7 @@ impl Configuration {
             lib: Lib::new(),
             print: Vec::new(),
             global: Global::new(),
+            tran: Tran::new(),
         }
     }
     // option 写入
@@ -142,6 +144,10 @@ impl Configuration {
             nodes.push(bit[i].to_string());
         }
         self.global.add_nodes(nodes);
+    }
+    pub fn tran_analysis(&mut self, bit: Vec<&str>) {
+        let tran_scan = Tran_scan::from(bit[1].to_string(), bit[2].to_string());
+        self.tran.scans.push(tran_scan);
     }
 }
 /*
@@ -337,5 +343,31 @@ impl Global {
     }
     pub fn add_nodes(&mut self, nodes: Vec<String>) {
         self.nodes = nodes;
+    }
+}
+
+#[derive(Debug)]
+pub struct Tran {
+    scans: Vec<Tran_scan>,
+}
+impl Tran {
+    pub fn new() -> Self {
+        Self { scans: Vec::new() }
+    }
+}
+#[derive(Debug)]
+pub struct Tran_scan {
+    time: String,
+    step: String,
+}
+impl Tran_scan {
+    pub fn new() -> Self {
+        Self {
+            time: String::new(),
+            step: String::new(),
+        }
+    }
+    pub fn from(time: String, step: String) -> Self {
+        Self { time, step }
     }
 }
