@@ -1,6 +1,6 @@
 use crate::common::split::split_equal_sign;
 use crate::hspice::source::*;
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum DeviceType {
     Source(Source),
     R(R),
@@ -13,7 +13,7 @@ pub enum DeviceType {
     Sub(Sub),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Device {
     // 类型
     pub device_type: DeviceType,
@@ -42,7 +42,7 @@ impl Device {
 }
 
 // 电阻
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct R {
     name: String,
     value: u32,
@@ -63,7 +63,7 @@ impl R {
 }
 
 // 电容
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct C {
     name: String,
     value: String,
@@ -106,7 +106,7 @@ impl C {
     }
 }
 // 电感
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct L {
     name: String,
     value: String,
@@ -117,28 +117,28 @@ pub struct L {
 }
 
 // 互感
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct K {
     name: String,
     // 耦合系数
     value: String,
 }
 // 二极管
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct D {
     name: String,
     // 模型
     model: String,
 }
 // 三极管
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Q {
     name: String,
     // 模型
     model: String,
 }
 // MOS管
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MOS {
     name: String,
     // 模型
@@ -186,7 +186,7 @@ impl MOS {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Sub {
     pub name: String,
 }

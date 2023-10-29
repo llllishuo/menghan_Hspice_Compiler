@@ -1,16 +1,16 @@
 use crate::common::split::*;
 use crate::hspice::device::*;
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Source_type {
     DC(DC),
     AC(AC),
     TRANSIENT(Transient_tyoe),
 }
 // 交流源
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AC {}
 // 直流源
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DC {
     value: String,
 }
@@ -37,7 +37,7 @@ impl DC {
     }
 }
 // 瞬态源
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Transient_tyoe {
     PU(PU),
     SIN(SIN),
@@ -47,23 +47,23 @@ pub enum Transient_tyoe {
     AM(AM),
 }
 // Sinusoidal (SIN function) 正弦源
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SIN {}
 // Exponential (EXP function) 指数源
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct EXP {}
 
 // Piecewise linear (PWL function) 分段线性源
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PWL {}
 // Single-frequency FM (SFFM function) 调频源
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SFFM {}
 // Single-frequency AM (AM function) 调幅源
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AM {}
 // Pulse (PULSE function) 脉冲源
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PU {
     Low_voltage: String,
     High_voltage: String,
@@ -133,7 +133,7 @@ impl PU {
     }
 }
 // 源 既 电压源 与 电流源
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Source {
     name: String,
     // 正极

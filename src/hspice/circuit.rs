@@ -34,6 +34,7 @@ impl Circuit {
 
         let sub_devices: Vec<Device> = Vec::new();
 
+        let mut new_sub = sub_circuit::new();
         let mut sub_circuits = self.sub_circuits.iter_mut();
         while let Some(sub_iter) = sub_circuits.next() {
             if sub_iter.name != name {
@@ -42,21 +43,21 @@ impl Circuit {
             /*println!(
                 "name: {}, nodes: {:?}, devices: {:?}",
                 sub_iter.name, sub_iter.nodes, sub_iter.devices,
+
             );*/
-            let mut sub_devices_iter = sub_iter.devices;
-            for sub_device in sub_devices_iter {
-                self.devices.push(sub_device);
-            }
+
+            new_sub = sub_iter.clone();
         }
-        sub_devices
+        new_sub.devices
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct sub_circuit {
     name: String,
     nodes: Vec<String>,
     devices: Vec<Device>,
 }
+
 impl sub_circuit {
     pub fn new() -> Self {
         Self {
