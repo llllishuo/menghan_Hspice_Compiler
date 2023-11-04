@@ -1,5 +1,7 @@
 use std::collections::VecDeque;
 
+use crate::common::split::get_variables_within_parentheses;
+
 /// Program execution trace macro - prefix `<spice>`
 macro_rules! trace {
     ($fmt:expr $(, $($arg:tt)*)?) => {
@@ -13,20 +15,24 @@ macro_rules! trace {
 pub struct Configuration {
     option: Option,
     dc: DC,
-    lib: Lib,
+    libs: Vec<Lib>,
     print: Vec<Print>,
     global: Global,
     tran: Tran,
+    ac: AC,
+    probe: Probe,
 }
 impl Configuration {
     pub fn new() -> Self {
         Self {
             option: Option::new(),
             dc: DC::new(),
-            lib: Lib::new(),
+            libs: Vec::new(),
             print: Vec::new(),
             global: Global::new(),
             tran: Tran::new(),
+            ac: AC::new(),
+            probe: Probe::new(),
         }
     }
     // option 写入
@@ -95,7 +101,36 @@ impl Configuration {
         println!("{:?}", self.dc);
     }
     pub fn lib_analysis(&mut self, bit: Vec<&str>) {
-        self.lib.src.push(bit[1].to_string());
+        let mut name = String::new();
+        let mut path = String::new();
+        let mut is_special = bit[0].contains("\'");
+        match is_special {
+            true => {
+                let mut path_str = bit[0].to_string();
+                let len_path_end = bit[0].len() - 1 as usize;
+                path = path_str[5..len_path_end].to_string();
+                name = bit[1].to_string();
+            }
+            false => {
+                let mut chars = bit[1].chars();
+                let mut is_path = true;
+                chars.next();
+                while let Some(i) = chars.next() {
+                    match i {
+                        '\'' => is_path = false,
+                        _ => {
+                            if is_path {
+                                path.push(i);
+                            } else {
+                                name.push(i);
+                            }
+                        }
+                    }
+                }
+            }
+            _ => {}
+        }
+        self.libs.push(Lib { path: path, name });
     }
     pub fn print_analysis(&mut self, bit: Vec<&str>) {
         let mut prints = Vec::new();
@@ -148,6 +183,48 @@ impl Configuration {
     pub fn tran_analysis(&mut self, bit: Vec<&str>) {
         let tran_scan = Tran_scan::from(bit[1].to_string(), bit[2].to_string());
         self.tran.scans.push(tran_scan);
+    }
+    pub fn ac_analysis(&mut self, bit: Vec<&str>) {
+        let mut start = String::new();
+        let mut end = String::new();
+        let mut frequency = 0;
+        let mut ac_type = AcType::DEC;
+
+        ac_type = match bit[1] {
+            "DEC" | "dec" => AcType::DEC,
+            "LIN" | "lin" => AcType::LIN,
+            _ => {
+                panic!("<AC> unknown type : {}", bit[1]);
+            }
+        };
+        start = bit[2].to_string();
+        end = bit[2].to_string();
+
+        self.ac = AC::from(start, end, frequency, ac_type);
+    }
+
+    pub fn probe_analysis(&mut self, bit: Vec<&str>) {
+        let putout = match bit[1] {
+            "ac" | "AC" => PutoutType::AC,
+            "dc" | "DC" => PutoutType::DC,
+            _ => {
+                panic!("<PROBE> unknown type : {}", bit[1]);
+            }
+        };
+        let mut dates: Vec<Probe_date> = Vec::new();
+        for i in 2..bit.len() {
+            if !bit[i].contains("(") {
+                break;
+            }
+            let mut date_str = bit[i].to_string();
+            let date_type = date_str[..1].to_string();
+            let value = get_variables_within_parentheses(bit[i]);
+            dates.push(Probe_date {
+                date_type: date_type,
+                value,
+            })
+        }
+        self.probe = Probe::form(putout, dates);
     }
 }
 /*
@@ -307,11 +384,18 @@ impl Option {
 }
 #[derive(Debug)]
 struct Lib {
-    src: Vec<String>,
+    path: String,
+    name: String,
 }
 impl Lib {
     pub fn new() -> Self {
-        Self { src: Vec::new() }
+        Self {
+            path: String::new(),
+            name: String::new(),
+        }
+    }
+    pub fn from(path: String, name: String) -> Self {
+        Self { path: path, name }
     }
 }
 #[derive(Debug)]
@@ -369,5 +453,65 @@ impl Tran_scan {
     }
     pub fn from(time: String, step: String) -> Self {
         Self { time, step }
+    }
+}
+#[derive(Debug)]
+pub enum AcType {
+    DEC,
+    LIN,
+}
+#[derive(Debug)]
+pub struct AC {
+    start: String,
+    end: String,
+    frequency: u32,
+    ac_type: AcType,
+}
+impl AC {
+    pub fn new() -> Self {
+        Self {
+            start: String::new(),
+            end: String::new(),
+            frequency: 0,
+            ac_type: AcType::DEC,
+        }
+    }
+    pub fn from(start: String, end: String, frequency: u32, ac_type: AcType) -> Self {
+        Self {
+            start: start,
+            end,
+            frequency,
+            ac_type,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum PutoutType {
+    AC,
+    DC,
+}
+#[derive(Debug)]
+pub struct Probe_date {
+    date_type: String,
+    value: String,
+}
+#[derive(Debug)]
+pub struct Probe {
+    putout: PutoutType,
+    dates: Vec<Probe_date>,
+}
+impl Probe {
+    pub fn new() -> Self {
+        Self {
+            putout: PutoutType::DC,
+            dates: Vec::new(),
+        }
+    }
+    pub fn form(putout: PutoutType, dates: Vec<Probe_date>) -> Self {
+        Self {
+            putout: putout,
+            dates,
+        }
     }
 }

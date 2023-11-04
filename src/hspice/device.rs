@@ -29,13 +29,13 @@ impl Device {
             Some('m') | Some('M') => MOS::from(bits),
             // 添加电源
             Some('v') | Some('V') => Source::from(bits),
+            Some('i') | Some('I') => Source::from(bits),
             Some('c') | Some('C') => C::from(bits),
             Some('x') | Some('X') => Sub::from(bits),
+            Some('r') | Some('R') => R::from(bits),
+            Some('l') | Some('L') => L::from(bits),
             _ => {
-                panic!("This is an illegal device! -> {:?}", bits[0].chars());
-            }
-            x => {
-                panic!("This is an illegal device! -> {:?} {:?}", x, bits[0]);
+                panic!("<WARN>: This is an illegal device! -> {:#?}", bits);
             }
         }
     }
@@ -45,9 +45,9 @@ impl Device {
 #[derive(Debug, Clone)]
 pub struct R {
     name: String,
-    value: u32,
+    value: String,
     // 温度系数
-    TC: Vec<u32>,
+    TC: Vec<f32>,
     // 交流分析阻值
     AC: f64,
 }
@@ -55,9 +55,24 @@ impl R {
     pub fn new() -> Self {
         R {
             name: String::new(),
-            value: 32,
-            TC: vec![1, 2],
-            AC: 1e10,
+            value: String::new(),
+            TC: Vec::new(),
+            AC: 0.0,
+        }
+    }
+    pub fn from(bits: Vec<&str>) -> Device {
+        let mut nodes: Vec<String> = Vec::new();
+        nodes.push(bits[1].to_string());
+        nodes.push(bits[2].to_string());
+        let value: String = bits[3].to_string();
+        Device {
+            device_type: DeviceType::R(R {
+                name: bits[0].to_string(),
+                value,
+                TC: vec![],
+                AC: 0.0,
+            }),
+            node: nodes,
         }
     }
 }
@@ -94,7 +109,7 @@ impl C {
         value = split_equal_sign(bits[3]);
         Device {
             device_type: DeviceType::C(C {
-                name: String::new(),
+                name: bits[0].to_string(),
                 value: value,
                 M: 0,
                 CTYPE: String::new(),
@@ -111,9 +126,39 @@ pub struct L {
     name: String,
     value: String,
     // 温度系数
-    TC: Vec<u32>,
+    TC: Vec<f64>,
     // 多项式函数
     func: String,
+}
+impl L {
+    pub fn new() -> Self {
+        Self {
+            name: String::new(),
+            value: String::new(),
+            TC: Vec::new(),
+            func: String::new(),
+        }
+    }
+    pub fn from(bits: Vec<&str>) -> Device {
+        let mut nodes = Vec::new();
+        let name = bits[0].to_string();
+        let mut value = String::new();
+        let mut TC: Vec<f64> = Vec::new();
+        let mut func = String::new();
+
+        nodes.push(bits[1].to_string());
+        nodes.push(bits[2].to_string());
+        value = bits[3].to_string();
+        Device {
+            device_type: DeviceType::L(L {
+                name: name,
+                value: value,
+                TC: TC,
+                func: func,
+            }),
+            node: nodes,
+        }
+    }
 }
 
 // 互感
@@ -150,10 +195,10 @@ pub struct MOS {
 impl MOS {
     pub fn new(name: String, model: String, long: String, wide: String) -> Self {
         Self {
-            name,
-            model,
-            long,
-            wide,
+            name: String::new(),
+            model: String::new(),
+            long: String::new(),
+            wide: String::new(),
         }
     }
     pub fn from(bits: Vec<&str>) -> Device {

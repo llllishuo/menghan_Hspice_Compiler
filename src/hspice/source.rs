@@ -156,17 +156,19 @@ impl Source {
         let mut name = bits[0].to_string();
         let mut pe = bits[1].to_string();
         let mut ne = bits[2].to_string();
-        if bits[3].len() < 2 {
+        if bits.len() == 4 && !bits[3].to_string().contains("=") {
             return DC::from(name, pe, ne, bits);
         }
         // 拆分以判断前两个字符
         let mut first_two = bits[3].to_string();
-        match &first_two[0..2] {
+        let mut device = match &first_two[0..2] {
             "DC" | "dc" => DC::from(name, pe, ne, bits),
             "PU" | "pu" => PU::from(name, pe, ne, bits),
             _ => {
-                panic!("Unknown power type： {}", bits[3]);
+                panic!("Unknown power type： {:?}", bits);
             }
-        }
+        };
+
+        device
     }
 }

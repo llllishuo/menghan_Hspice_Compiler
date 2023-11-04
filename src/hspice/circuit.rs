@@ -3,7 +3,7 @@ use crate::hspice::device::*;
 #[derive(Debug)]
 pub struct Circuit {
     devices: Vec<Device>, // 器件组
-    sub_circuits: Vec<sub_circuit>,
+    sub_circuits: Vec<Sub_circuit>,
 }
 impl Circuit {
     pub fn new() -> Self {
@@ -25,7 +25,7 @@ impl Circuit {
         println!("sub_circuits: {:?}", self.sub_circuits);
     }
 
-    pub fn add_sub_circuits(&mut self, sub: sub_circuit) {
+    pub fn add_sub_circuits(&mut self, sub: Sub_circuit) {
         self.sub_circuits.push(sub);
     }
     pub fn retrieve_sub_circuits(&mut self, name: String) -> Vec<Device> {
@@ -34,7 +34,7 @@ impl Circuit {
 
         let sub_devices: Vec<Device> = Vec::new();
 
-        let mut new_sub = sub_circuit::new();
+        let mut new_sub = Sub_circuit::new();
         let mut sub_circuits = self.sub_circuits.iter_mut();
         while let Some(sub_iter) = sub_circuits.next() {
             if sub_iter.name != name {
@@ -52,13 +52,13 @@ impl Circuit {
     }
 }
 #[derive(Debug, Clone)]
-pub struct sub_circuit {
+pub struct Sub_circuit {
     name: String,
     nodes: Vec<String>,
     devices: Vec<Device>,
 }
 
-impl sub_circuit {
+impl Sub_circuit {
     pub fn new() -> Self {
         Self {
             name: String::new(),

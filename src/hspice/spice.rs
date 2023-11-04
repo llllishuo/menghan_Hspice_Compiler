@@ -1,6 +1,7 @@
+use crate::common::split::*;
 use crate::hspice::{
     analysis::Configuration,
-    circuit::{sub_circuit, Circuit},
+    circuit::{Circuit, Sub_circuit},
     device::*,
     source::*,
 };
@@ -51,7 +52,7 @@ impl Reader {
     }
     pub fn analysis_iter(&mut self, data_iter: Lines<BufReader<File>>) {
         let mut is_sub = false;
-        let mut sub_circuit: sub_circuit = sub_circuit::new();
+        let mut sub_circuit = Sub_circuit::new();
         // 处理读取到的每一行数据
         for data_line in data_iter {
             // println!("{:#?}", data_line);
@@ -67,18 +68,9 @@ impl Reader {
                 continue;
             }
 
-            // 消除语句的注释以及结束标识符
-            let mut bits: Vec<&str> = vec![];
-            for bit in item {
-                if bit == "$" || bit.starts_with('$') {
-                    break;
-                }
-                if bit == ";" {
-                    break;
-                }
+            let mut bits = clean_comments_and_end_identifiers(item);
 
-                bits.push(bit);
-            }
+            // 消除语句的注释以及结束标识符
 
             // println!("{:#?}", bits);
 
@@ -110,14 +102,24 @@ impl Reader {
                 ".ends" => {
                     is_sub = false;
                     self.ckts.add_sub_circuits(sub_circuit);
-                    sub_circuit = sub_circuit::new();
+                    sub_circuit = Sub_circuit::new();
                     println!("sub_circuit: <end>");
                 }
                 ".tran" => {
                     self.cfg.tran_analysis(bits);
                 }
+                ".ac" => {
+                    self.cfg.ac_analysis(bits);
+                }
+                ".probe" => {
+                    self.cfg.probe_analysis(bits);
+                }
                 // 器件的解析
                 _ => {
+                    if bits[0].starts_with(".lib") {
+                        self.cfg.lib_analysis(bits);
+                        continue;
+                    }
                     let device = Device::get(bits);
                     match device.device_type {
                         DeviceType::Sub(i) => {
