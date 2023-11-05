@@ -21,6 +21,7 @@ pub struct Configuration {
     tran: Tran,
     ac: AC,
     probe: Probe,
+    params: Vec<Param>,
 }
 impl Configuration {
     pub fn new() -> Self {
@@ -33,6 +34,7 @@ impl Configuration {
             tran: Tran::new(),
             ac: AC::new(),
             probe: Probe::new(),
+            params: Vec::new(),
         }
     }
     // option 写入
@@ -40,9 +42,7 @@ impl Configuration {
         trace!("*INFO* Parsing control '{}'", bit[0]);
         // 根据参数值赋值
         match bit[1] {
-            "post" => {
-                self.option.post = NUM::get(bit[3]);
-            }
+            "post" => self.option.post = NUM::get(bit[3]),
             "search" => self.option.search = bit[1].to_string(),
 
             _ => {
@@ -225,6 +225,24 @@ impl Configuration {
             })
         }
         self.probe = Probe::form(putout, dates);
+    }
+
+    pub fn param_analysis(&mut self, bit: Vec<&str>) {
+        if bit.len() > 2 {
+            panic!("<params> Length exceeds limit: {:?}", bit);
+        }
+        let mut split_str = bit[1].split("=");
+        let Some(name) = split_str.next() else {
+            todo!()
+        };
+        let Some(value) = split_str.next() else {
+            todo!()
+        };
+
+        self.params.push(Param {
+            name: name.to_string(),
+            value: value.to_string(),
+        })
     }
 }
 /*
@@ -512,6 +530,20 @@ impl Probe {
         Self {
             putout: putout,
             dates,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Param {
+    name: String,
+    value: String,
+}
+impl Param {
+    pub fn new() -> Self {
+        Self {
+            name: String::new(),
+            value: String::new(),
         }
     }
 }

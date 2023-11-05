@@ -50,10 +50,8 @@ impl Reader {
 
         lines_iter
     }
-    pub fn analysis_iter(&mut self, data_iter: Lines<BufReader<File>>) {
-        let mut is_sub = false;
-        let mut sub_circuit = Sub_circuit::new();
-        // 处理读取到的每一行数据
+    pub fn analysis_data_collation(data_iter: Lines<BufReader<File>>) -> Vec<Vec<String>> {
+        let mut new_data: Vec<Vec<String>> = Vec::new();
         for data_line in data_iter {
             // println!("{:#?}", data_line);
 
@@ -72,28 +70,29 @@ impl Reader {
 
             // 消除语句的注释以及结束标识符
 
+            let bits: Vec<String> = bits.iter().map(|&s| s.to_owned()).collect();
             // println!("{:#?}", bits);
+            new_data.push(bits);
+        }
+        new_data
+    }
+    pub fn analysis_iter(&mut self, data_iter: Lines<BufReader<File>>) {
+        let mut is_sub = false;
+        let mut sub_circuit = Sub_circuit::new();
+        // 处理读取到的每一行数据
 
+        let mut bit_iter = Reader::analysis_data_collation(data_iter);
+        for bits in bit_iter {
+            //由于技术原因重构成本过高只能降低性能
+            let mut bits: Vec<&str> = bits.iter().map(|s| s.as_str()).collect();
             // 对数据进行解析
             match bits[0] {
-                ".end" => {
-                    println!("<end> Analysis over !!");
-                }
-                ".option" => {
-                    self.cfg.option_analysis(bits);
-                }
-                ".lib" => {
-                    self.cfg.lib_analysis(bits);
-                }
-                ".dc" => {
-                    self.cfg.dc_analysis(bits);
-                }
-                ".print" => {
-                    self.cfg.print_analysis(bits);
-                }
-                ".global" => {
-                    self.cfg.global_analysis(bits);
-                }
+                ".end" => println!("<end> Analysis over !!"),
+                ".option" => self.cfg.option_analysis(bits),
+                ".lib" => self.cfg.lib_analysis(bits),
+                ".dc" => self.cfg.dc_analysis(bits),
+                ".print" => self.cfg.print_analysis(bits),
+                ".global" => self.cfg.global_analysis(bits),
                 ".subckt" => {
                     println!("sub_circuit: <start> ");
                     is_sub = true;
@@ -105,15 +104,10 @@ impl Reader {
                     sub_circuit = Sub_circuit::new();
                     println!("sub_circuit: <end>");
                 }
-                ".tran" => {
-                    self.cfg.tran_analysis(bits);
-                }
-                ".ac" => {
-                    self.cfg.ac_analysis(bits);
-                }
-                ".probe" => {
-                    self.cfg.probe_analysis(bits);
-                }
+                ".tran" => self.cfg.tran_analysis(bits),
+                ".ac" => self.cfg.ac_analysis(bits),
+                ".probe" => self.cfg.probe_analysis(bits),
+                ".param" => self.cfg.param_analysis(bits),
                 // 器件的解析
                 _ => {
                     if bits[0].starts_with(".lib") {
