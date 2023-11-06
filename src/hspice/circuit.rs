@@ -78,10 +78,10 @@ impl Sub_circuit {
     }
     pub fn add_device(&mut self, device: Device) {
         self.devices.push(device);
-        println!(
+        /*println!(
             "{}: <update> Number of devices added to the current circuit: {}",
             self.name,
             self.devices.len()
-        );
+        );*/
     }
 }

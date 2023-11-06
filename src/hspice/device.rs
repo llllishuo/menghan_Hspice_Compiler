@@ -35,7 +35,7 @@ impl Device {
             Some('r') | Some('R') => R::from(bits),
             Some('l') | Some('L') => L::from(bits),
             _ => {
-                panic!("<WARN>: This is an illegal device! -> {:#?}", bits);
+                panic!("📛 <WARN>: This is an illegal device! -> {:#?}", bits);
             }
         }
     }
@@ -202,11 +202,6 @@ impl MOS {
         }
     }
     pub fn from(bits: Vec<&str>) -> Device {
-        assert!(
-            bits.len() >= 8,
-            "MOS statement syntax error, please modify!!!!"
-        );
-
         let name = bits[0].to_string();
         let node = vec![
             bits[1].to_string(),

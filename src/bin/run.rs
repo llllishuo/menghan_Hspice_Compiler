@@ -19,16 +19,32 @@ pub struct Args {
 fn main() {
     let args = Args::parse();
 
-    match args.only_sim {
-        true => {
-            println!("只执行仿真");
-        }
-        false => {
-            println!("执行仿真及其其它");
-        }
-    }
-
     let spice_file = Path::new(&args.file_name);
+
+    println!(
+        "
+🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈
+🎈                          🎈
+🎈                          🎈
+🎈      HspiceCompiler      🎈
+🎈                          🎈
+🎈                          🎈
+🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈
+
+🚩
+    🚗: File Path 💨 {:?}
+
+🚩
+
+⛅ The compiler is ready ⛅
+
+🐔尼钛镁: 💬
+
+
+        ",
+        spice_file
+    );
+
     spice_file.try_exists().expect("Can't access hspice file");
     let mut reader = spice::Reader::new();
     let data_iter = reader.read(spice_file);

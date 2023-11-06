@@ -37,14 +37,14 @@ impl Reader {
         let input = File::open(filename).unwrap();
         let buf = BufReader::new(input);
         let mut lines_iter = buf.lines();
-        println!("lines_iter: {:?}", lines_iter);
+        //println!("lines_iter: {:?}", lines_iter);
 
         let ckt_name = filename
             .file_stem()
-            .expect("The file cannot be opened in this path!")
+            .expect("🛑 The file cannot be opened in this path!")
             .to_str()
-            .expect("Illegal file naming in this path");
-        println!("ckt_name: {}", ckt_name);
+            .expect("🛑 Illegal file naming in this path");
+        //println!("ckt_name: {}", ckt_name);
 
         lines_iter.next();
 
@@ -87,14 +87,14 @@ impl Reader {
             let mut bits: Vec<&str> = bits.iter().map(|s| s.as_str()).collect();
             // 对数据进行解析
             match bits[0] {
-                ".end" => println!("<end> Analysis over !!"),
+                ".end" => println!("🆗 <end> Analysis over !!"),
                 ".option" => self.cfg.option_analysis(bits),
                 ".lib" => self.cfg.lib_analysis(bits),
                 ".dc" => self.cfg.dc_analysis(bits),
                 ".print" => self.cfg.print_analysis(bits),
                 ".global" => self.cfg.global_analysis(bits),
                 ".subckt" => {
-                    println!("sub_circuit: <start> ");
+                    //println!("sub_circuit: <start> ");
                     is_sub = true;
                     sub_circuit.add_name_And_Nodes(bits);
                 }
@@ -102,7 +102,7 @@ impl Reader {
                     is_sub = false;
                     self.ckts.add_sub_circuits(sub_circuit);
                     sub_circuit = Sub_circuit::new();
-                    println!("sub_circuit: <end>");
+                    //println!("sub_circuit: <end>");
                 }
                 ".tran" => self.cfg.tran_analysis(bits),
                 ".ac" => self.cfg.ac_analysis(bits),
@@ -136,7 +136,7 @@ impl Reader {
                 }
             }
         }
-        println!("ckts: \n{:?}", self.ckts);
-        println!("cfg: \n{:?}", self.cfg);
+        println!("🔵 ckts: \n{:?}", self.ckts);
+        println!("🟣 cfg: \n{:?}", self.cfg);
     }
 }

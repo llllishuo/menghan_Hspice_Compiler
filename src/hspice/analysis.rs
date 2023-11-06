@@ -39,21 +39,21 @@ impl Configuration {
     }
     // option 写入
     pub fn option_analysis(&mut self, bit: Vec<&str>) {
-        trace!("*INFO* Parsing control '{}'", bit[0]);
+        //trace!("*INFO* Parsing control '{}'", bit[0]);
         // 根据参数值赋值
         match bit[1] {
             "post" => self.option.post = NUM::get(bit[3]),
             "search" => self.option.search = bit[1].to_string(),
 
             _ => {
-                panic!("This is an unspecified parameter! -> {}", bit[1]);
+                panic!("📛 This is an unspecified parameter! -> {}", bit[1]);
             }
         }
-        println!("{:?}", self.option);
+        //println!("{:?}", self.option);
     }
     // dc 写入
     pub fn dc_analysis(&mut self, bit: Vec<&str>) {
-        trace!("*INFO* Parsing control '{}'", bit[0]);
+        //trace!("*INFO* Parsing control '{}'", bit[0]);
         let mut vars: Vec<Var> = Vec::new();
         let var_name = bit[1];
         let mut scan = Scan_type::None;
@@ -98,7 +98,7 @@ impl Configuration {
             sweep: sweep,
         });
         self.dc = DC::from(vars);
-        println!("{:?}", self.dc);
+        //println!("{:?}", self.dc);
     }
     pub fn lib_analysis(&mut self, bit: Vec<&str>) {
         let mut name = String::new();
@@ -171,7 +171,7 @@ impl Configuration {
             }
         }
         self.print = prints;
-        println!("<update>print: {:?}", self.print);
+        //println!("<update>print: {:?}", self.print);
     }
     pub fn global_analysis(&mut self, bit: Vec<&str>) {
         let mut nodes: Vec<String> = Vec::new();
@@ -194,7 +194,7 @@ impl Configuration {
             "DEC" | "dec" => AcType::DEC,
             "LIN" | "lin" => AcType::LIN,
             _ => {
-                panic!("<AC> unknown type : {}", bit[1]);
+                panic!("📛 <AC> unknown type : {}", bit[1]);
             }
         };
         start = bit[2].to_string();
@@ -208,7 +208,7 @@ impl Configuration {
             "ac" | "AC" => PutoutType::AC,
             "dc" | "DC" => PutoutType::DC,
             _ => {
-                panic!("<PROBE> unknown type : {}", bit[1]);
+                panic!("📛 <PROBE> unknown type : {}", bit[1]);
             }
         };
         let mut dates: Vec<Probe_date> = Vec::new();
@@ -229,7 +229,7 @@ impl Configuration {
 
     pub fn param_analysis(&mut self, bit: Vec<&str>) {
         if bit.len() > 2 {
-            panic!("<params> Length exceeds limit: {:?}", bit);
+            panic!("📛 <params> Length exceeds limit: {:?}", bit);
         }
         let mut split_str = bit[1].split("=");
         let Some(name) = split_str.next() else {
@@ -333,7 +333,7 @@ impl NUM {
             "2" => NUM::TWO,
             "3" => NUM::THREE,
             _ => {
-                panic!("This is an unspecified number! -> num: {}", num);
+                panic!("📛 This is an unspecified number! -> num: {}", num);
             }
         }
     }
