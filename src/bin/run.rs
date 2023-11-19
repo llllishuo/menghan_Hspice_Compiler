@@ -21,6 +21,14 @@ fn main() {
 
     let spice_file = Path::new(&args.file_name);
 
+    loading(spice_file);
+
+    spice_file.try_exists().expect("Can't access hspice file");
+    let mut reader = spice::Reader::new();
+    let data_iter = reader.read(spice_file);
+    reader.analysis_iter(data_iter);
+}
+fn loading(spice_file: &Path) {
     println!(
         "
 🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈
@@ -44,9 +52,4 @@ fn main() {
         ",
         spice_file
     );
-
-    spice_file.try_exists().expect("Can't access hspice file");
-    let mut reader = spice::Reader::new();
-    let data_iter = reader.read(spice_file);
-    reader.analysis_iter(data_iter);
 }

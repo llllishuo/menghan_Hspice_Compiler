@@ -41,3 +41,16 @@ pub fn get_variables_within_parentheses(bit: &str) -> String {
     }
     date
 }
+
+pub fn organize_special_writing_methods_for_lib(bits: Vec<&str>) -> Vec<&str> {
+    let mut new_bits: Vec<&str> = Vec::new();
+
+    let new_lib: Vec<&str> = bits[0].split("\'").collect();
+    for lib in new_lib {
+        new_bits.push(lib);
+    }
+    for i in 1..bits.len() {
+        new_bits.push(bits[i]);
+    }
+    new_bits
+}

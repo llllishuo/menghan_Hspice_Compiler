@@ -34,6 +34,7 @@ impl Device {
             Some('x') | Some('X') => Sub::from(bits),
             Some('r') | Some('R') => R::from(bits),
             Some('l') | Some('L') => L::from(bits),
+            Some('q') | Some('Q') => Q::from(bits),
             _ => {
                 panic!("📛 <WARN>: This is an illegal device! -> {:#?}", bits);
             }
@@ -181,6 +182,28 @@ pub struct Q {
     name: String,
     // 模型
     model: String,
+    value: String,
+}
+impl Q {
+    pub fn from(bits: Vec<&str>) -> Device {
+        let name = bits[0].to_string();
+        let mut nodes: Vec<String> = Vec::new();
+        nodes.push(bits[1].to_string());
+        nodes.push(bits[2].to_string());
+        nodes.push(bits[3].to_string());
+
+        let model = bits[4].to_string();
+        let value = split_equal_sign(bits[5]);
+
+        Device {
+            device_type: DeviceType::Q(Q {
+                name: name,
+                model,
+                value,
+            }),
+            node: nodes,
+        }
+    }
 }
 // MOS管
 #[derive(Debug, Clone)]

@@ -15,7 +15,7 @@ macro_rules! trace {
 pub struct Configuration {
     option: Option,
     dc: DC,
-    libs: Vec<Lib>,
+    libs: Vec<Libs>,
     print: Vec<Print>,
     global: Global,
     tran: Tran,
@@ -74,11 +74,11 @@ impl Configuration {
         let step = bit[4];
         let mut sweep: Vec<String> = Vec::new();
         // 判断参数输入完是否有其它关联变量
-        if bit[5] == "sweep" {
+        if bit.len() > 5 && bit[5] == "sweep" {
             sweep.push(bit[6].to_string());
         }
         // 判断末尾的 poi
-        if bit[7] == "poi" {
+        if bit.len() > 7 && bit[7] == "poi" {
             poi_vec = Vec::new();
             let num = bit[8].parse::<u32>().unwrap();
             for i in 0..num {
@@ -100,37 +100,17 @@ impl Configuration {
         self.dc = DC::from(vars);
         //println!("{:?}", self.dc);
     }
-    pub fn lib_analysis(&mut self, bit: Vec<&str>) {
-        let mut name = String::new();
-        let mut path = String::new();
-        let mut is_special = bit[0].contains("\'");
-        match is_special {
-            true => {
-                let mut path_str = bit[0].to_string();
-                let len_path_end = bit[0].len() - 1 as usize;
-                path = path_str[5..len_path_end].to_string();
-                name = bit[1].to_string();
-            }
-            false => {
-                let mut chars = bit[1].chars();
-                let mut is_path = true;
-                chars.next();
-                while let Some(i) = chars.next() {
-                    match i {
-                        '\'' => is_path = false,
-                        _ => {
-                            if is_path {
-                                path.push(i);
-                            } else {
-                                name.push(i);
-                            }
-                        }
-                    }
-                }
-            }
-            _ => {}
-        }
-        self.libs.push(Lib { path: path, name });
+    pub fn lib_extract_path_and_name(&mut self, bit: Vec<&str>) -> Lib {
+        let mut name = bit[2].to_string();
+        let mut path = bit[1].to_string();
+
+        Lib { path, name }
+    }
+    pub fn lib_analysis(&mut self, alter_name: String, lib_list: Vec<Lib>) {
+        self.libs.push(Libs {
+            cfg_name: alter_name,
+            lib_list,
+        })
     }
     pub fn print_analysis(&mut self, bit: Vec<&str>) {
         let mut prints = Vec::new();
@@ -400,8 +380,8 @@ impl Option {
         }
     }
 }
-#[derive(Debug)]
-struct Lib {
+#[derive(Debug, Clone)]
+pub struct Lib {
     path: String,
     name: String,
 }
@@ -413,7 +393,23 @@ impl Lib {
         }
     }
     pub fn from(path: String, name: String) -> Self {
-        Self { path: path, name }
+        Self { path, name }
+    }
+}
+#[derive(Debug)]
+struct Libs {
+    cfg_name: String,
+    lib_list: Vec<Lib>,
+}
+impl Libs {
+    pub fn new() -> Self {
+        Self {
+            cfg_name: String::new(),
+            lib_list: Vec::new(),
+        }
+    }
+    pub fn from(cfg_name: String, lib_list: Vec<Lib>) -> Self {
+        Self { cfg_name, lib_list }
     }
 }
 #[derive(Debug)]
