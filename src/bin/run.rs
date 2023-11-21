@@ -1,7 +1,8 @@
+use crate::hspice::spice;
 use clap::Parser;
+use jni::objects::*;
+use jni::JNIEnv;
 use std::path::Path;
-
-use HspiceCompiler::hspice::*;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
@@ -14,6 +15,11 @@ pub struct Args {
     pub output_method: Option<String>,
     #[clap(long, default_value = "false")]
     pub only_sim: bool,
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn Java_pers_metaworm_RustJNI_init(env: JNIEnv, _class: JClass) {
+    println!("rust-java-demo inited");
 }
 
 fn main() {
