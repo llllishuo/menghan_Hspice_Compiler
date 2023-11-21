@@ -1,6 +1,5 @@
 # Hspice Comepler
 
-+ src
 + bin 
 + common : Tool class
 + data : sample data
