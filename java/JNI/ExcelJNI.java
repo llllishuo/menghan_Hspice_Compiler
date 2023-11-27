@@ -3,7 +3,7 @@ package JNI;
 
 public class ExcelJNI{
 	 static {
-        System.loadLibrary("rust_java_demo");
+        System.loadLibrary("HspiceCompiler");
     }
 
     public static void main(String[] args) {

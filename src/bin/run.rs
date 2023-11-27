@@ -1,3 +1,4 @@
+use crate::common::offic::excel;
 use clap::Parser;
 use jni::objects::*;
 use jni::JNIEnv;
@@ -10,11 +11,7 @@ pub struct Args {
     #[clap(help = "Hspice file name")]
     pub file_name: String,
     #[clap(short, long)]
-    pub output_src: Option<String>,
-    #[clap(long)]
-    pub output_method: Option<String>,
-    #[clap(long, default_value = "false")]
-    pub only_sim: bool,
+    pub output_path: String,
 }
 
 fn main() {
@@ -22,14 +19,18 @@ fn main() {
 
     let spice_file = Path::new(&args.file_name);
 
-    loading(spice_file);
+    let output_path = Path::new(&args.output_path);
+
+    loading(args);
 
     spice_file.try_exists().expect("Can't access hspice file");
     let mut reader = spice::Reader::new();
     let data_iter = reader.read(spice_file);
     reader.analysis_iter(data_iter);
+
+    excel::write_to_excel(data_iter, output_path);
 }
-fn loading(spice_file: &Path) {
+fn loading(args: Args) {
     println!(
         "
 🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈
@@ -43,6 +44,8 @@ fn loading(spice_file: &Path) {
 🚩
     🚗: File Path 💨 {:?}
 
+    💌: Output Path 🔦 {:?}
+
 🚩
 
 ⛅ The compiler is ready ⛅
@@ -51,6 +54,6 @@ fn loading(spice_file: &Path) {
 
 
         ",
-        spice_file
+        args.file_name, args.output_path,
     );
 }

@@ -14,10 +14,8 @@ use std::{
 
 pub struct Reader {
     // Circuit information
-    /// `ckts[0]` is the toplevel
-    ckts: Circuit,
-    /// Options and analysis commands
-    cfg: Configuration,
+    pub ckts: Circuit,
+    pub cfg: Configuration,
     is_sub: bool,
     is_alter: bool,
     lib_size: (u32, u32),
