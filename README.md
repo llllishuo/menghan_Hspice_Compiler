@@ -38,7 +38,9 @@ cross build --release --target x86_64-pc-windows-gnu
 cross build --release --target x86_64-apple-darwin
 cross build --release --target x86_64-unknown-linux-gnu
 ```
-**This will build binary files on Windows, Mac, and Linux respectively. After the construction is completed, you will be working on target/x86_ 64 pc windows gnu/release, target/x86_ 64 apple darwin/release and target/x86_ Three binary files were found in the 64 unknown Linux gnu/release directory.**
+
+**This will build binary files on Windows, Mac, and Linux respectively. After building, you will find three binary files in directories ```target/x86_64-pc-windows-gnu/release```, ```target/x86_64-apple-darwin/release```, and ```target/x86_64-unknown-linux-gnu/release```.**
+
 ```shell
 ./HspiceComplier [data file] [output paht]
 ```
