@@ -12,7 +12,7 @@ pub struct AC {}
 // 直流源
 #[derive(Debug, Clone)]
 pub struct DC {
-    value: String,
+    pub value: String,
 }
 impl DC {
     pub fn new() -> Self {
@@ -65,13 +65,13 @@ pub struct AM {}
 // Pulse (PULSE function) 脉冲源
 #[derive(Debug, Clone)]
 pub struct PU {
-    Low_voltage: String,
-    High_voltage: String,
-    Delay: String,
-    Rise_time: String,
-    Descending_time: String,
-    Pulse_width: String,
-    cycle: String,
+    pub Low_voltage: String,
+    pub High_voltage: String,
+    pub Delay: String,
+    pub Rise_time: String,
+    pub Descending_time: String,
+    pub Pulse_width: String,
+    pub cycle: String,
 }
 impl PU {
     pub fn new() -> Self {
@@ -135,13 +135,13 @@ impl PU {
 // 源 既 电压源 与 电流源
 #[derive(Debug, Clone)]
 pub struct Source {
-    name: String,
+    pub name: String,
     // 正极
-    pe: String,
+    pub pe: String,
     // 负极
-    ne: String,
+    pub ne: String,
     // 电压类型
-    source_type: Source_type,
+    pub source_type: Source_type,
 }
 impl Source {
     pub fn new(name: String, pe: String, ne: String, DC: String, tranfun: String) -> Self {

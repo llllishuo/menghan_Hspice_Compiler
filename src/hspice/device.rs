@@ -45,12 +45,12 @@ impl Device {
 // 电阻
 #[derive(Debug, Clone)]
 pub struct R {
-    name: String,
-    value: String,
+    pub name: String,
+    pub value: String,
     // 温度系数
-    TC: Vec<f32>,
+    pub TC: Vec<f32>,
     // 交流分析阻值
-    AC: f64,
+    pub AC: f64,
 }
 impl R {
     pub fn new() -> Self {
@@ -81,16 +81,16 @@ impl R {
 // 电容
 #[derive(Debug, Clone)]
 pub struct C {
-    name: String,
-    value: String,
+    pub name: String,
+    pub value: String,
     // 数量
-    M: u32,
+    pub M: u32,
     // 电容两端节点的函数
-    CTYPE: String,
+    pub CTYPE: String,
     // 电容两端初始电压
-    IC: String,
+    pub IC: String,
     // 多项式函数
-    func: String,
+    pub func: String,
 }
 impl C {
     pub fn new() -> Self {
@@ -124,12 +124,12 @@ impl C {
 // 电感
 #[derive(Debug, Clone)]
 pub struct L {
-    name: String,
-    value: String,
+    pub name: String,
+    pub value: String,
     // 温度系数
-    TC: Vec<f64>,
+    pub TC: Vec<f64>,
     // 多项式函数
-    func: String,
+    pub func: String,
 }
 impl L {
     pub fn new() -> Self {
@@ -165,24 +165,24 @@ impl L {
 // 互感
 #[derive(Debug, Clone)]
 pub struct K {
-    name: String,
+    pub name: String,
     // 耦合系数
-    value: String,
+    pub value: String,
 }
 // 二极管
 #[derive(Debug, Clone)]
 pub struct D {
-    name: String,
+    pub name: String,
     // 模型
-    model: String,
+    pub model: String,
 }
 // 三极管
 #[derive(Debug, Clone)]
 pub struct Q {
-    name: String,
+    pub name: String,
     // 模型
-    model: String,
-    value: String,
+    pub model: String,
+    pub value: String,
 }
 impl Q {
     pub fn from(bits: Vec<&str>) -> Device {
@@ -208,12 +208,12 @@ impl Q {
 // MOS管
 #[derive(Debug, Clone)]
 pub struct MOS {
-    name: String,
+    pub name: String,
     // 模型
-    model: String,
+    pub model: String,
 
-    long: String,
-    wide: String,
+    pub long: String,
+    pub wide: String,
 }
 impl MOS {
     pub fn new(name: String, model: String, long: String, wide: String) -> Self {

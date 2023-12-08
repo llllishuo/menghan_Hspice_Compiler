@@ -1,0 +1,5 @@
+name,type,nodes,value_type,value,subckt 
+m1,MOS,y/a/vdd/vdd/,wide/long,3u/0.6u,
+m2,MOS,y/b/vdd/vdd/,wide/long,3u/0.6u,
+m3,MOS,y/b/n1/gnd/,wide/long,2u/0.6u,
+m4,MOS,n1/a/gnd/gnd/,wide/long,2u/0.6u,
